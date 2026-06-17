@@ -6,6 +6,8 @@ import logger from 'morgan';
 import indexRouter from './routes/index.js';
 import usersRouter from './routes/users.js';
 import authRouter from './routes/auth.js';
+import eventRouter from "./routes/event.js"
+import bookingRouter from "./routes/booking.js"
 
 const app = express();
 
@@ -22,6 +24,8 @@ app.use(express.static('public'));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/auth', authRouter);
+app.use('/events', eventRouter);
+app.use('/bookings', bookingRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

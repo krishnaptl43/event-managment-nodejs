@@ -1,0 +1,47 @@
+import multer from "multer";
+import path from "path"
+
+// Configure disk storage
+const eventStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/event-images'); // Ensure folder exists
+    },
+    filename: (req, file, cb) => {
+        // Generate a unique filename: timestamp + original extension
+        const uniqueSuffix = "Event-Image-" + Date.now();
+        cb(null, uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+// Configure disk storage
+const userStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/user-images'); // Ensure folder exists
+    },
+    filename: (req, file, cb) => {
+        // Generate a unique filename: timestamp + original extension
+        const uniqueSuffix = "User-Image-" + Date.now();
+        cb(null, uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+// Configure file filter (e.g., only accept images)
+const fileFilter = (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+        cb(null, true);
+    } else {
+        cb(new Error('Only image files are allowed!'), false);
+    }
+};
+
+export const eventImageUpload = multer({
+    storage: eventStorage,
+    fileFilter,
+    limits: { fileSize: 1024 * 1024 * 5 } // 5MB Size;
+});
+
+export const userImageUpload = multer({
+    storage: userStorage,
+    fileFilter,
+    limits: { fileSize: 1024 * 1024 * 5 } // 5MB Size;
+});
