@@ -8,8 +8,8 @@ const eventStorage = multer.diskStorage({
     },
     filename: (req, file, cb) => {
         // Generate a unique filename: timestamp + original extension
-        const uniqueSuffix = "Event-Image-" + Date.now();
-        cb(null, uniqueSuffix + path.extname(file.originalname));
+        const uniqueSuffix = "Event-" + Date.now() + "-" + file.originalname;
+        cb(null, uniqueSuffix);
     }
 });
 
@@ -20,8 +20,8 @@ const userStorage = multer.diskStorage({
     },
     filename: (req, file, cb) => {
         // Generate a unique filename: timestamp + original extension
-        const uniqueSuffix = "User-Image-" + Date.now();
-        cb(null, uniqueSuffix + path.extname(file.originalname));
+        const uniqueSuffix = "User-" + Date.now() + "-" + file.originalname;
+        cb(null, uniqueSuffix);
     }
 });
 
@@ -37,7 +37,7 @@ const fileFilter = (req, file, cb) => {
 export const eventImageUpload = multer({
     storage: eventStorage,
     fileFilter,
-    limits: { fileSize: 1024 * 1024 * 5 } // 5MB Size;
+    limits: { fileSize: 1024 * 1024 * 10 } // 10MB Size;
 });
 
 export const userImageUpload = multer({

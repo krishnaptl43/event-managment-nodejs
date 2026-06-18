@@ -1,5 +1,7 @@
+import { json } from "express";
 import eventModel from "../models/eventModel.js";
 import { ApiResponse } from "../utils/responsePattern.js";
+import fs from "fs";
 
 export async function getEvents(req, res, next) {
     try {
@@ -8,7 +10,27 @@ export async function getEvents(req, res, next) {
         let limit = req.query.limit <= 15 ? req.query.limit : 8;
         let skip = page === 1 ? 0 : (page - 1) * limit
 
-        let events = await eventModel.find().skip(skip).limit(limit);
+        let events = await eventModel.find()
+            .skip(skip)
+            .limit(limit);
+
+        return res.status(200).json(new ApiResponse(true, events, "success"))
+
+    } catch (error) {
+        res.status(500).json(new ApiResponse(false, null, error.message || "Internal server Error"))
+    }
+}
+
+export async function getMyEvents(req, res, next) {
+    try {
+
+        let page = req.query.page || 1;
+        let limit = req.query.limit <= 15 ? req.query.limit : 8;
+        let skip = page === 1 ? 0 : (page - 1) * limit
+
+        let events = await eventModel.find({adder : req.user._id})
+            .skip(skip)
+            .limit(limit);
 
         return res.status(200).json(new ApiResponse(true, events, "success"))
 
@@ -49,6 +71,14 @@ export async function addEvent(req, res, next) {
             return res.status(400).json(new ApiResponse(false, null, "All Fields Are required"));
         }
 
+        const thumbnail = `${req.protocol}://${req.host}/${req.files.thumbnail[0]?.destination}/${req.files.thumbnail[0]?.filename}`
+
+        const images = [];
+
+        for (let image of req?.files?.images) {
+            let url = `${req.protocol}://${req.host}/${image.destination}/${image.filename}`;
+            images.push(url);
+        }
 
         const newEvent = await eventModel.create({
             title,
@@ -61,15 +91,24 @@ export async function addEvent(req, res, next) {
             time,
             venue,
             category,
-            highlights,
+            highlights: JSON.parse(highlights),
             organizer,
-            images : [],
-            thumbnail : ""
+            images,
+            thumbnail,
+            adder: req.user._id
         });
 
         return res.status(201).json(new ApiResponse(true, newEvent, "success"))
 
     } catch (error) {
+        let files = [...req.files?.thumbnail, ...req.files?.images];
+        for (let image of files) {
+            fs.rm(image.path, (data, err) => {
+                if (err) {
+                    console.log(err);
+                }
+            })
+        }
         res.status(500).json(new ApiResponse(false, null, error.message || "Internal server Error"))
     }
 }

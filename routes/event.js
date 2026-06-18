@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getEvents, addEvent, updateEvent, deleteEvent ,cancelEvent} from '../controller/eventController.js';
+import { getEvents, addEvent, updateEvent, deleteEvent ,cancelEvent, getMyEvents} from '../controller/eventController.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
 import { roleMiddleware } from '../middleware/roleMiddleware.js';
 import { eventImageUpload } from '../config/multer.js';
@@ -11,6 +11,9 @@ router.get('/', getEvents);
 
 router.use("/", authMiddleware, roleMiddleware("admin"));
 
+// my events
+router.get('/my', getMyEvents);
+
 /* POST users */
 router.post('/', eventImageUpload.fields([{name : "thumbnail",maxCount : 1},{name : "images",maxCount : 6}]) ,addEvent);
 
@@ -21,6 +24,6 @@ router.patch('/:eventId', updateEvent);
 router.delete('/:eventId', deleteEvent);
 
 /* CANCEL users */
-router.patch('/:eventId', cancelEvent);
+router.patch('/cancel/:eventId', cancelEvent);
 
 export default router;

@@ -6,7 +6,7 @@ export async function authMiddleware(req, res, next) {
     try {
         let headers = req && req.headers;
 
-        let token = headers && headers.authorization.split(" ")[1];
+        let token = headers && headers?.authorization?.split(" ")[1];
 
         if (!token) return res.status(401).json(new ApiResponse(false, null, "token not found"));
 

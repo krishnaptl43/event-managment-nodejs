@@ -7,12 +7,7 @@ const eventSchema = new Schema({
         trim: true,
         maxLength: [32, "title Is Too Long"],
         minLength: [8, "title is Too Short"],
-        validate: {
-            validator: function (v) {
-                return /^[a-zA-Z]+ [a-zA-Z]+$/.test(v)
-            },
-            message: props => `${props.value} is Not A valid Title`
-        }
+        unique : true
     },
     desc: {
         type: String,
@@ -77,7 +72,7 @@ const eventSchema = new Schema({
     venue: {
         type: String,
         trim: true,
-        required: [true, "venue is required"]
+        required: [true, "venue is required"],
     },
     category: {
         type: String,

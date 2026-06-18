@@ -27,6 +27,9 @@ app.use('/auth', authRouter);
 app.use('/events', eventRouter);
 app.use('/bookings', bookingRouter);
 
+// for static image send
+app.use("/uploads",express.static('uploads'));
+
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));
