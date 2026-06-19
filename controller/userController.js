@@ -1,6 +1,6 @@
 import userModel from "../models/userModel.js";
 import { ApiResponse } from "../utils/responsePattern.js";
-import { generateHash } from "../config/bcrypt.js"
+import { generateHash, verifyHash } from "../config/bcrypt.js"
 
 export async function getUsers(req, res, next) {
     try {
@@ -67,6 +67,30 @@ export async function deleteUser(req, res, next) {
         if (delUser) return res.status(200).json(new ApiResponse(true, delUser, "deleted success"))
 
         return res.status(404).json(new ApiResponse(true, null, "User Not Found"))
+
+    } catch (error) {
+        res.status(500).json(new ApiResponse(false, null, error.message || "Internal server Error"))
+    }
+}
+
+// change password
+export async function changePassword(req, res, next) {
+    try {
+        const { oldPassword, newPassword } = req.body;
+
+        if (!oldPassword || !newPassword) {
+            return res.status(400).json(new ApiResponse(false, null, "oldPassword and newPassword is required"));
+        }
+
+        let match = await verifyHash(oldPassword, req.user.password);
+
+        if (!match) return res.status(403).json(new ApiResponse(false, null, "Password Incorrect"));
+
+        let hash = await generateHash(newPassword);
+
+        const updatePass = await userModel.findByIdAndUpdate(req.user._id, { password: hash });
+
+        return res.status(201).json(new ApiResponse(true, updatePass, "password changed success"))
 
     } catch (error) {
         res.status(500).json(new ApiResponse(false, null, error.message || "Internal server Error"))

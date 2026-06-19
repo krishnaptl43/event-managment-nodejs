@@ -2,6 +2,7 @@ import createError from 'http-errors';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
+import cors from "cors";
 
 import indexRouter from './routes/index.js';
 import usersRouter from './routes/users.js';
@@ -15,6 +16,9 @@ const app = express();
 app.set('views', 'views');
 app.set('view engine', 'ejs');
 
+app.use(cors({
+  origin : "*"
+}))
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

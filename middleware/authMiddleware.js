@@ -20,10 +20,8 @@ export async function authMiddleware(req, res, next) {
 
         user = user.toObject();
 
-        delete user.password;
         delete user.__v
-        delete user.isDeleted
-
+        
         req.user = user;
 
         next();

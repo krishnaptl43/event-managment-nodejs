@@ -25,7 +25,11 @@ export async function getMyBookings(req, res, next) {
         let limit = req.query.limit <= 15 ? req.query.limit : 8;
         let skip = page === 1 ? 0 : (page - 1) * limit
 
-        let booking = await bookingModel.find({ attendee: req.user._id }).skip(skip).limit(limit);
+        let booking = await bookingModel.find({ attendee: req.user._id })
+            .skip(skip)
+            .limit(limit)
+            .populate("attendee")
+            .populate("event");
 
         return res.status(200).json(new ApiResponse(true, booking, "success"))
 
@@ -36,17 +40,42 @@ export async function getMyBookings(req, res, next) {
 
 export async function bookTicket(req, res, next) {
     try {
-        const { name, email, password } = req.body;
+        const { event, booked_tickets, ticket_type } = req.body;
 
-        if (!name || !email || !password) {
-            return res.status(400).json(new ApiResponse(false, null, "name , password and Email is required"));
+        if (!event || !ticket_type) {
+            return res.status(400).json(new ApiResponse(false, null, "Event And ticket_type (general or premium)  is required"));
         }
 
-        let hash = await generateHash(password);
+        const eventDetail = await eventModel.findOne({ _id: event, isCancel: false, isExpire: false });
 
-        const newUser = await userModel.create({ name, email, password: hash });
+        if (!eventDetail) {
+            return res.status(400).json(new ApiResponse(false, null, "Event Not Found or cancelled"));
+        }
 
-        return res.status(201).json(new ApiResponse(true, newUser, "success"))
+        let eventDate = new Date(eventDetail.date);
+        let today = Date.now();
+
+        console.log(eventDate);
+
+
+        // book before one days ago
+        if (!(eventDate.getTime() - (1000 * 60 * 60 * 24) > today)) {
+            return res.status(400).json(new ApiResponse(false, null, "you are too late to book tickets"));
+        }
+
+        let total_ticket_amount = ticket_type === "general"
+            ? eventDetail.general_tickets_price * (booked_tickets || 1)
+            : eventDetail.premium_tickets_price * (booked_tickets || 1)
+
+        const ticket = await bookingModel.create({
+            attendee : req.user._id,
+            event,
+            booked_tickets: booked_tickets || 1,
+            ticket_type,
+            total_ticket_amount
+        });
+
+        return res.status(201).json(new ApiResponse(true, ticket, "ticket booked success"))
 
     } catch (error) {
         res.status(500).json(new ApiResponse(false, null, error.message || "Internal server Error"))
