@@ -79,7 +79,7 @@ export async function changePassword(req, res, next) {
         const { oldPassword, newPassword } = req.body;
 
         if (!oldPassword || !newPassword) {
-            return res.status(400).json(new ApiResponse(false, null, "oldPassword and newPassword is required"));
+            return res.status(400).json(new ApiResponse(false, null, "old Password and new Password is required"));
         }
 
         let match = await verifyHash(oldPassword, req.user.password);
@@ -91,6 +91,20 @@ export async function changePassword(req, res, next) {
         const updatePass = await userModel.findByIdAndUpdate(req.user._id, { password: hash });
 
         return res.status(201).json(new ApiResponse(true, updatePass, "password changed success"))
+
+    } catch (error) {
+        res.status(500).json(new ApiResponse(false, null, error.message || "Internal server Error"))
+    }
+}
+
+export async function getMyProfile(req, res, next) {
+    try {
+
+        const User = await userModel.findById(req.user._id);
+
+        if (User) return res.status(200).json(new ApiResponse(true, User, "profile success"))
+
+        return res.status(404).json(new ApiResponse(true, null, "User Not Found"))
 
     } catch (error) {
         res.status(500).json(new ApiResponse(false, null, error.message || "Internal server Error"))
