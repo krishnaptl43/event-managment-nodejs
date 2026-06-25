@@ -33,7 +33,8 @@ const userSchema = new Schema({
                 return /^(\+91)?[6-9]\d{9}$/.test(v);
             },
             message: props => `${props.value} is not a valid phone number!`
-        }
+        },
+        default: null
     },
     password: {
         type: String,
@@ -50,11 +51,17 @@ const userSchema = new Schema({
     },
     image: {
         type: String,
-        trim: true
+        trim: true,
+        default: null
     },
     isDeleted: {
         type: Boolean,
         default: false
+    },
+    address: {
+        type: String,
+        trim: true,
+        default: null
     }
 }, { timestamps: true });
 

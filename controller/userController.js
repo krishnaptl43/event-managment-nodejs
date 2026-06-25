@@ -39,17 +39,15 @@ export async function registerUser(req, res, next) {
 
 export async function updateUser(req, res, next) {
     try {
-        const { userId } = req.params;
-        const { name, phone, gender, } = req.body;
+        const { name, phone, gender, address, email } = req.body;
 
-        if (!name || !phone || !gender) {
-            return res.status(400).json(new ApiResponse(false, null, "name , gender and phone is required"));
+        if (!name || !phone || !gender || !email || !address) {
+            return res.status(400).json(new ApiResponse(false, null, "name , gender,email,address and phone is required"));
         }
 
-        const upUser = await userModel.findByIdAndUpdate(userId, { name, gender, phone }, { returnDocument: "after", runValidators: true });
+        const upUser = await userModel.findByIdAndUpdate(req.user._id, { name, gender, phone, email, address }, { returnDocument: "after", runValidators: true });
 
-
-        if (upUser) return res.status(200).json(new ApiResponse(true, upUser, "success"))
+        if (upUser) return res.status(200).json(new ApiResponse(true, upUser, "updated success"))
 
         return res.status(404).json(new ApiResponse(true, null, "User Not Found"))
 
@@ -103,6 +101,31 @@ export async function getMyProfile(req, res, next) {
         const User = await userModel.findById(req.user._id);
 
         if (User) return res.status(200).json(new ApiResponse(true, User, "profile success"))
+
+        return res.status(404).json(new ApiResponse(true, null, "User Not Found"))
+
+    } catch (error) {
+        res.status(500).json(new ApiResponse(false, null, error.message || "Internal server Error"))
+    }
+}
+
+// upload image controller
+export async function uploadImage(req, res, next) {
+    try {
+
+        const imageFile = req.file;
+
+
+        if (!imageFile) {
+            return res.status(400).json(new ApiResponse(false, null, "Image file is required"));
+        }
+
+        const fileUrl = `${req.protocol}://${req.host}/${imageFile.destination}/${imageFile.filename}`;
+
+        const upUser = await userModel.findByIdAndUpdate(req.user._id, { image: fileUrl }, { returnDocument: "after", runValidators: true });
+
+
+        if (upUser) return res.status(200).json(new ApiResponse(true, upUser, "upload success"))
 
         return res.status(404).json(new ApiResponse(true, null, "User Not Found"))
 
