@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getEvents, addEvent, updateEvent, deleteEvent ,cancelEvent, getMyEvents} from '../controller/eventController.js';
+import { getEvents, addEvent, updateEvent, deleteEvent ,cancelEvent, getMyEvents,getEventById} from '../controller/eventController.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
 import { roleMiddleware } from '../middleware/roleMiddleware.js';
 import { eventImageUpload } from '../config/multer.js';
@@ -8,6 +8,9 @@ const router = Router();
 
 /* GET users listing. */
 router.get('/', getEvents);
+
+// get event by id
+router.get('/:eventId', getEventById);
 
 router.use("/", authMiddleware, roleMiddleware("admin"));
 

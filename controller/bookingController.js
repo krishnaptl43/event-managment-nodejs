@@ -55,22 +55,19 @@ export async function bookTicket(req, res, next) {
         let eventDate = new Date(eventDetail.date);
         let today = Date.now();
 
-        console.log(eventDate);
-
-
         // book before one days ago
         if (!(eventDate.getTime() - (1000 * 60 * 60 * 24) > today)) {
             return res.status(400).json(new ApiResponse(false, null, "you are too late to book tickets"));
         }
 
         let total_ticket_amount = ticket_type === "general"
-            ? eventDetail.general_tickets_price * (booked_tickets || 1)
-            : eventDetail.premium_tickets_price * (booked_tickets || 1)
+            ? eventDetail.general_tickets_price * (Number(booked_tickets) || 1)
+            : eventDetail.premium_tickets_price * (Number(booked_tickets) || 1)
 
         const ticket = await bookingModel.create({
             attendee : req.user._id,
             event,
-            booked_tickets: booked_tickets || 1,
+            booked_tickets: Number(booked_tickets) || 1,
             ticket_type,
             total_ticket_amount
         });

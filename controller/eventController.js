@@ -28,7 +28,7 @@ export async function getMyEvents(req, res, next) {
         let limit = req.query.limit <= 15 ? req.query.limit : 8;
         let skip = page === 1 ? 0 : (page - 1) * limit
 
-        let events = await eventModel.find({adder : req.user._id})
+        let events = await eventModel.find({ adder: req.user._id })
             .skip(skip)
             .limit(limit);
 
@@ -158,6 +158,21 @@ export async function cancelEvent(req, res, next) {
         if (cancelEvent) return res.status(200).json(new ApiResponse(true, cancelEvent, "cencel success"))
 
         return res.status(404).json(new ApiResponse(true, null, "Event Not Found"))
+
+    } catch (error) {
+        res.status(500).json(new ApiResponse(false, null, error.message || "Internal server Error"))
+    }
+}
+
+export async function getEventById(req, res, next) {
+    try {
+        const { eventId } = req.params;
+
+        const event = await eventModel.findById(eventId);
+
+        if (event) return res.status(200).json(new ApiResponse(true, event, "success"))
+
+        return res.status(404).json(new ApiResponse(false, null, "event Not Found"))
 
     } catch (error) {
         res.status(500).json(new ApiResponse(false, null, error.message || "Internal server Error"))
