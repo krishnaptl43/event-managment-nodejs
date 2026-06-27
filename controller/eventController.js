@@ -1,4 +1,3 @@
-import { json } from "express";
 import eventModel from "../models/eventModel.js";
 import { ApiResponse } from "../utils/responsePattern.js";
 import fs from "fs";
@@ -32,7 +31,11 @@ export async function getMyEvents(req, res, next) {
             .skip(skip)
             .limit(limit);
 
-        return res.status(200).json(new ApiResponse(true, events, "success"))
+        let totalEvents = await eventModel.countDocuments({ adder: req.user._id });
+        let totalCancelledEvents = await eventModel.countDocuments({ adder: req.user._id, isCancel: true });
+        let totalExpiredEvents = await eventModel.countDocuments({ adder: req.user._id, isExpire: true });    
+
+        return res.status(200).json(new ApiResponse(true, { events, totalEvents, totalCancelledEvents, totalExpiredEvents }, "success"))
 
     } catch (error) {
         res.status(500).json(new ApiResponse(false, null, error.message || "Internal server Error"))

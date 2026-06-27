@@ -9,7 +9,7 @@ export async function getAllBookings(req, res, next) {
         let limit = req.query.limit <= 100 ? req.query.limit : 25;
         let skip = page === 1 ? 0 : (page - 1) * limit
 
-        let bookings = await bookingModel.find().skip(skip).limit(limit);
+        let bookings = await bookingModel.find({ event: req.params.eventId }).populate("attendee").populate("event").skip(skip).limit(limit);
 
         return res.status(200).json(new ApiResponse(true, bookings, "success"))
 
@@ -65,7 +65,7 @@ export async function bookTicket(req, res, next) {
             : eventDetail.premium_tickets_price * (Number(booked_tickets) || 1)
 
         const ticket = await bookingModel.create({
-            attendee : req.user._id,
+            attendee: req.user._id,
             event,
             booked_tickets: Number(booked_tickets) || 1,
             ticket_type,

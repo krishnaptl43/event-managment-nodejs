@@ -8,7 +8,7 @@ var router = Router();
 /* GET users listing. */
 router.get('/', authMiddleware, roleMiddleware("admin"), getUsers);
 
-router.get('/profile', authMiddleware, roleMiddleware("user"), getMyProfile);
+router.get('/profile', authMiddleware, roleMiddleware("user","admin"), getMyProfile);
 
 /* POST users */
 router.post('/', registerUser);

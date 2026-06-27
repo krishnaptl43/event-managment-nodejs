@@ -13,7 +13,7 @@ router.post('/', roleMiddleware("user"), bookTicket);
 
 router.patch('/:eventId', roleMiddleware("user"), cancelBooking);
 
-router.get('/get-all-bookings', roleMiddleware("admin"),  getAllBookings);
+router.get('/:eventId', roleMiddleware("admin"),  getAllBookings);
 
 
 export default router;
